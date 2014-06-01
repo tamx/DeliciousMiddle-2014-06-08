@@ -1,13 +1,11 @@
 package com.example.btchat;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.UUID;
-
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
@@ -21,6 +19,16 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
+	private MyBindService mService;
+	private ServiceConnection mConnection = new ServiceConnection() {
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			mService = MyBindService.Stub.asInterface(service);
+		}
+
+		public void onServiceDisconnected(ComponentName name) {
+			mService = null;
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +39,9 @@ public class MainActivity extends ActionBarActivity {
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
+
+		Intent intent = new Intent(this, MainService.class);
+		bindService(intent, mConnection, BIND_AUTO_CREATE);
 	}
 
 	@Override
@@ -76,20 +87,8 @@ public class MainActivity extends ActionBarActivity {
 					Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT)
 							.show();
 					try {
-						// Unique UUID for this application
-						UUID uuid = UUID
-								.fromString("00000000-1111-1111-0000-111111111111");
-						BluetoothAdapter adapter = BluetoothAdapter
-								.getDefaultAdapter();
-						BluetoothDevice device = adapter
-								.getRemoteDevice("78:1C:5A:D1:BD:72");
-						BluetoothSocket socket = device
-								.createInsecureRfcommSocketToServiceRecord(uuid);
-						socket.connect();
-						OutputStream os = socket.getOutputStream();
-						os.write((message + "\n").getBytes());
-						os.flush();
-					} catch (IOException e) {
+						((MainActivity) getActivity()).mService.send(message);
+					} catch (RemoteException e) {
 						e.printStackTrace();
 					}
 				}
