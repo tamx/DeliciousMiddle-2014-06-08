@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
@@ -63,13 +64,15 @@ public class MainActivity extends ActionBarActivity {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_main, container,
-					false);
+			final View rootView = inflater.inflate(R.layout.fragment_main,
+					container, false);
 			Button button = (Button) rootView.findViewById(R.id.button1);
 			button.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					String message = "I'm Tam.";
+					EditText edit = (EditText) rootView
+							.findViewById(R.id.editText1);
+					String message = edit.getText().toString();
 					Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT)
 							.show();
 					try {
