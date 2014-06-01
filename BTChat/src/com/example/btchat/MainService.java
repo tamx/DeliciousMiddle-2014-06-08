@@ -15,10 +15,10 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.widget.Toast;
 
 public class MainService extends Service implements Runnable {
 	private BluetoothSocket socket = null;
+	private MyObserver observer = null;
 
 	private final MyBindService.Stub mMyBindService = new MyBindService.Stub() {
 		@Override
@@ -30,6 +30,11 @@ public class MainService extends Service implements Runnable {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
+
+		@Override
+		public void register(MyObserver observer) throws RemoteException {
+			MainService.this.observer = observer;
 		}
 	};
 
@@ -50,8 +55,11 @@ public class MainService extends Service implements Runnable {
 		this.handler.post(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(MainService.this, message, Toast.LENGTH_LONG)
-						.show();
+				try {
+					MainService.this.observer.update(message);
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}

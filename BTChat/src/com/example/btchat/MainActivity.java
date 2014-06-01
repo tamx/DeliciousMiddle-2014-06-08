@@ -16,13 +16,18 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements MyObserver {
 	private MyBindService mService;
 	private ServiceConnection mConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			mService = MyBindService.Stub.asInterface(service);
+			try {
+				mService.register(MainActivity.this);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 		}
 
 		public void onServiceDisconnected(ComponentName name) {
@@ -84,17 +89,33 @@ public class MainActivity extends ActionBarActivity {
 					EditText edit = (EditText) rootView
 							.findViewById(R.id.editText1);
 					String message = edit.getText().toString();
-					Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT)
-							.show();
 					try {
+						((MainActivity) getActivity()).update(message);
 						((MainActivity) getActivity()).mService.send(message);
 					} catch (RemoteException e) {
 						e.printStackTrace();
 					}
 				}
 			});
+			((MainActivity) getActivity()).textview = (TextView) rootView
+					.findViewById(R.id.textView1);
+
 			return rootView;
 		}
+	}
+
+	@Override
+	public IBinder asBinder() {
+		return null;
+	}
+
+	private TextView textview = null;
+
+	@Override
+	public void update(String message) throws RemoteException {
+		String text = textview.getText().toString();
+		text = message + "\n" + text;
+		textview.setText(text);
 	}
 
 }
