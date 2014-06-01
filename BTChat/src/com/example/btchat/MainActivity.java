@@ -1,5 +1,12 @@
 package com.example.btchat;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.UUID;
+
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -65,6 +72,23 @@ public class MainActivity extends ActionBarActivity {
 					String message = "I'm Tam.";
 					Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT)
 							.show();
+					try {
+						// Unique UUID for this application
+						UUID uuid = UUID
+								.fromString("00000000-1111-1111-0000-111111111111");
+						BluetoothAdapter adapter = BluetoothAdapter
+								.getDefaultAdapter();
+						BluetoothDevice device = adapter
+								.getRemoteDevice("78:1C:5A:D1:BD:72");
+						BluetoothSocket socket = device
+								.createInsecureRfcommSocketToServiceRecord(uuid);
+						socket.connect();
+						OutputStream os = socket.getOutputStream();
+						os.write((message + "\n").getBytes());
+						os.flush();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			});
 			return rootView;
