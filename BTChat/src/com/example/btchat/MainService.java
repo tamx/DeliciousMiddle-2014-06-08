@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -60,6 +62,12 @@ public class MainService extends Service implements Runnable {
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
+				NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+				Notification notification = new Notification();
+				notification.icon = R.drawable.ic_launcher;
+				notification.setLatestEventInfo(getApplicationContext(),
+						"Message Arrived!", message, null);
+				manager.notify(1, notification);
 			}
 		});
 	}
