@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity implements Runnable {
 	private Handler handler = new Handler();
+	private BluetoothServerSocket ssocket = null;
 	private TextView textview = null;
 
 	@Override
@@ -34,6 +35,17 @@ public class MainActivity extends ActionBarActivity implements Runnable {
 
 		Peer.activity = this;
 		new Thread(this).start();
+	}
+
+	@Override
+	protected void onDestroy() {
+		try {
+			this.ssocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		this.ssocket = null;
+		super.onDestroy();
 	}
 
 	@Override
@@ -81,8 +93,14 @@ public class MainActivity extends ActionBarActivity implements Runnable {
 		UUID uuid = UUID.fromString("00000000-1111-1111-0000-111111111111");
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		System.err.println("BT Address: " + adapter.getAddress());
-		BluetoothServerSocket ssocket = null;
 		try {
+			if (false) {
+				BluetoothSocket client = adapter.getRemoteDevice(
+						"78:1C:5A:D1:BD:72")
+						.createInsecureRfcommSocketToServiceRecord(uuid);
+				client.connect();
+				new Peer(client);
+			}
 			ssocket = adapter.listenUsingInsecureRfcommWithServiceRecord(
 					"BTServer", uuid);
 			while (true) {
