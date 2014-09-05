@@ -101,11 +101,12 @@ public class MainActivity extends ActionBarActivity implements Runnable {
 				client.connect();
 				new Peer(client);
 			}
-			ssocket = adapter.listenUsingInsecureRfcommWithServiceRecord(
-					"BTServer", uuid);
 			while (true) {
+				ssocket = adapter.listenUsingInsecureRfcommWithServiceRecord(
+						"BTServer", uuid);
 				final BluetoothSocket socket = ssocket.accept();
 				new Peer(socket);
+				ssocket.close();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
